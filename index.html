@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Leaflet CSS Link -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+    <title>Web-GIS Flores Timur</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+
+    <!-- Leaflet JS Link -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+    <!-- jQuery Link -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- Leaflet Geoserver Request Link -->
+    <script src="lib/L.Geoserver.js"></script>
+
+    <script>
+        // 1. Inisialisasi Peta berpusat di Flores Timur
+        var map = L.map("map").setView([-8.33794, 123.12927], 10);
+
+        // 2. Basemap OpenStreetMap
+        var osm = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 19,
+            attribution:
+                '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        });
+        osm.addTo(map);
+
+        // 3. Layer WMS Batas Kecamatan
+        var wmsBatasKecamatan = L.Geoserver.wms("http://localhost:8080/geoserver/wms", {
+            layers: "pgweb:batas_kecamatan",
+            transparent: true,
+            attribution: "Batas Kecamatan Flores Timur",
+        });
+        wmsBatasKecamatan.addTo(map);
+
+        // 4. Layer WMS Jalan
+        var wmsJalan = L.Geoserver.wms("http://localhost:8080/geoserver/wms", {
+            layers: "pgweb:jalan",
+            transparent: true,
+            attribution: "Jalan Flores Timur",
+        });
+        wmsJalan.addTo(map);
+
+        // 5. Kontrol Layer (Layer Control) di pojok kanan atas
+        var baseMaps = {
+            "OpenStreetMap": osm
+        };
+
+        var overlayMaps = {
+            "Batas Kecamatan": wmsBatasKecamatan,
+            "Jalan": wmsJalan
+        };
+
+        L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
+
+        // 6. Legenda WMS untuk Batas Kecamatan
+        var legendBatas = L.Geoserver.legend("http://localhost:8080/geoserver/wms", {
+            layers: "pgweb:batas_kecamatan",
+        });
+        legendBatas.addTo(map);
+
+        // 7. Legenda WMS untuk Jalan
+        var legendJalan = L.Geoserver.legend("http://localhost:8080/geoserver/wms", {
+            layers: "pgweb:jalan",
+        });
+        legendJalan.addTo(map);
+    </script>
+</body>
+
+</html>
